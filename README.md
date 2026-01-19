@@ -40,7 +40,7 @@ This GitHub Action opens a specified GitHub issue using the GitHub API. It retur
        steps:
          - name: open Issue
            id: open
-           uses: la-actions/open-issue-action@v1
+           uses: lee-lott-actions/open-issue-action@v1
            with:
              issue-number: ${{ github.event.issue.number }}
              token: ${{ secrets.GITHUB_TOKEN }}
