@@ -1,0 +1,42 @@
+name: Open Issue
+description: A GitHub Action to Open a specified GitHub issue using the GitHub API
+author: Louisiana Office of Technology Services
+
+inputs:
+  issue-number:
+    description: 'The issue number to open'
+    required: true
+  token:
+    description: 'GitHub token with repository write access'
+    required: true
+  owner:
+    description: 'The owner of the repository'
+    required: true
+  repo-name:
+    description: 'The name of the repository'
+    required: true
+
+outputs:
+  result:
+    description: 'Result of the issue opening attempt ("success" or "failure")'
+    value: ${{ steps.action.outputs.result }}
+  error-message:
+    description: 'Error message if the issue opening fails'
+    value: ${{ steps.action.outputs.error-message }}
+
+runs:
+  using: composite
+  steps:
+    - name: Re-open Issue
+      id: action
+      shell: pwsh
+      env:
+        MOCK_API: ${{ env.MOCK_API }}
+      run: |        
+        . "${{ github.action_path }}/action.ps1"
+        open_issue `
+          -IssueNumber "${{ inputs.issue-number }}" `
+          -Token "${{ inputs.token }}" `
+          -Owner "${{ inputs.owner }}" `
+          -RepoName "${{ inputs.repo-name }}"       
+      
