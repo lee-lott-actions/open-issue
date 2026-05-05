@@ -1,4 +1,4 @@
-# Re-open Issue Action
+# Open Issue Action
 
 This GitHub Action opens a specified GitHub issue using the GitHub API. It returns the result of the closure attempt, indicating success or failure, along with an error message if the operation fails.
 
