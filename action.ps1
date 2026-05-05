@@ -27,14 +27,17 @@ function open_issue {
     $ApiBaseUrl = if ($env:MOCK_API) { $env:MOCK_API } else { "https://api.github.com" }
 
     try {
+        $headers = @{
+            Authorization          = "Bearer $Token"
+            Accept                 = "application/vnd.github+json"
+            "Content-Type"         = "application/json"
+            "X-GitHub-Api-Version" = "2026-03-10"
+        }
+    
         $Response = Invoke-WebRequest `
-            -Method PATCH `
             -Uri "$ApiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber" `
-            -Headers @{
-                Authorization = "Bearer $Token"
-                Accept        = "application/vnd.github.v3+json"
-                "Content-Type" = "application/json"
-            } `
+            -Headers $headers `
+            -Method PATCH `
             -Body '{"state":"open"}' `
 
         $StatusCode = $Response.StatusCode
