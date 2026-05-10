@@ -47,7 +47,7 @@ Describe "open_issue unit tests" {
 
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
-            $output | Should -Contain "error-message=Failed to open issue #1. Status: 403"
+            $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 403"
         }
 
         It "unit: open_issue fails with HTTP 404" {
@@ -62,7 +62,7 @@ Describe "open_issue unit tests" {
 
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
-            $output | Should -Contain "error-message=Failed to open issue #1. Status: 404"
+            $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 404"
         }
     }
 
