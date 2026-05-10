@@ -21,42 +21,40 @@ function open_issue {
         return
     }
 
-    Write-Output "Attempting to open issue #$IssueNumber in $Owner/$RepoName"
-
     # Use MOCK_API if set, otherwise default to GitHub API
-    $ApiBaseUrl = if ($env:MOCK_API) { $env:MOCK_API } else { "https://api.github.com" }
+    $apiBaseUrl = $env:MOCK_API
+    if(-not $apiBaseUrl) { $apiBaseUrl = "https://api.github.com" }
+    $uri = "$apiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber"
+
+    $headers = @{
+        Authorization = "Bearer $Token"
+        Accept = "application/vnd.github+json"
+        "X-GitHub-Api-Version" = "2026-03-10"
+        "Content-Type" = "application/json"
+    }
+
+    $body = @{ state = "open" } | ConvertTo-Json -Compress
 
     try {
-        $headers = @{
-            Authorization          = "Bearer $Token"
-            Accept                 = "application/vnd.github+json"
-            "Content-Type"         = "application/json"
-            "X-GitHub-Api-Version" = "2026-03-10"
-        }
-    
-        $Response = Invoke-WebRequest `
-            -Uri "$ApiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber" `
-            -Headers $headers `
-            -Method PATCH `
-            -Body '{"state":"open"}' `
-
-        $StatusCode = $Response.StatusCode
+        Write-Output "Attempting to open issue #$IssueNumber in $Owner/$RepoName"
         
-        Write-Output "API Response Code: $StatusCode"
+        $response = Invoke-WebRequest -Uri $uri -Headers $headers -Method PATCH -Body $body -SkipHttpErrorCheck
 
-        if ($StatusCode -eq 200) {
+        if ($response.StatusCode -eq 200) {
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=success"
-            Write-Host "Openend issue #$IssueNumber in $Owner/$RepoName"
+            Write-Host "Opened issue #$IssueNumber in $Owner/$RepoName"
         }
         else {
+            $errorMsg = "Error: Failed to open issue #$IssueNumber. HTTP Status: $($response.StatusCode)"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Failed to open issue #$IssueNumber. Status: $StatusCode"
-            Write-Host "Error: Failed to open issue #$IssueNumber. Status: $StatusCode"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
+            Write-Host $errorMsg
         }
     }
     catch {
+            $errorMsg = "Error: Failed to open issue.  Exception: $($_.Exception.Message)"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Open Issue Failed; threw an Exception. Status: $StatusCode"
-            Write-Host "Error: Failed to open issue due to an Exception: $($_.Exception.Message)"
-        }
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
+            Write-Host $errorMsg
+    }
 }
