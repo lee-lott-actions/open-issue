@@ -1,7 +1,7 @@
-Describe "open_issue unit tests" {
+Describe "Open-Issue unit tests" {
 
     BeforeAll {
-        # Import the PowerShell implementation of open_issue
+        # Import the PowerShell implementation of Open-Issue
         . "$PSScriptRoot/../action.ps1"
     }
 
@@ -17,8 +17,7 @@ Describe "open_issue unit tests" {
     }
     
     Context "Success cases" {
-
-        It "unit: open_issue succeeds with HTTP 200" {
+        It "unit: Open-Issue succeeds with HTTP 200" {
             Mock Invoke-WebRequest {
                 return @{
                     StatusCode = 200
@@ -26,16 +25,14 @@ Describe "open_issue unit tests" {
                 }
             }
 
-            { open_issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo" } | Should -Not -Throw
-
+            Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=success"
         }
     }
 
     Context "HTTP failure cases" {
-
-        It "unit: open_issue fails with HTTP 403" {
+        It "unit: Open-Issue fails with HTTP 403" {
             Mock Invoke-WebRequest {
                 return @{
                     StatusCode = 403
@@ -43,14 +40,13 @@ Describe "open_issue unit tests" {
                 }
             }
 
-            { open_issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo" } | Should -Not -Throw
-
+            Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 403"
         }
 
-        It "unit: open_issue fails with HTTP 404" {
+        It "unit: Open-Issue fails with HTTP 404" {
             Mock Invoke-WebRequest {
                 return @{
                     StatusCode = 404
@@ -58,8 +54,7 @@ Describe "open_issue unit tests" {
                 }
             }
 
-            { open_issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo" } | Should -Not -Throw
-
+            Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 404"
@@ -67,34 +62,29 @@ Describe "open_issue unit tests" {
     }
 
     Context "Parameter validation failures" {
-
-        It "unit: open_issue fails with empty issue_number" {
-            { open_issue -IssueNumber "" -Token "fake-token" -Owner "test-owner" -Repo "test-repo" } | Should -Not -Throw
-
+        It "unit: Open-Issue fails with empty issue_number" {
+            Open-Issue -IssueNumber "" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
         }
 
-        It "unit: open_issue fails with empty token" {
-            { open_issue -IssueNumber "1" -Token "" -Owner "test-owner" -Repo "test-repo" } | Should -Not -Throw
-
+        It "unit: Open-Issue fails with empty token" {
+            Open-Issue -IssueNumber "1" -Token "" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
         }
 
-        It "unit: open_issue fails with empty owner" {
-            { open_issue -IssueNumber "1" -Token "fake-token" -Owner "" -Repo "test-repo" } | Should -Not -Throw
-
+        It "unit: Open-Issue fails with empty owner" {
+            pen_issue -IssueNumber "1" -Token "fake-token" -Owner "" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
         }
 
-        It "unit: open_issue fails with empty repository" {
-            { open_issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "" } | Should -Not -Throw
-
+        It "unit: Open-Issue fails with empty repository" {
+            Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo ""
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
