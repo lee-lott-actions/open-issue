@@ -44,8 +44,7 @@ function Open-Issue {
             Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
             Write-Host $errorMsg
         }
-    }
-    catch {
+    } catch {
             $errorMsg = "Error: Failed to open issue.  Exception: $($_.Exception.Message)"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
