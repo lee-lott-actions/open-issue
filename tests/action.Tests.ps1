@@ -79,7 +79,7 @@ Describe "Open-Issue Unit Tests" {
         }
     }
 
-    Context "Execption Failure Cases" {
+    Context "Exception Failure Cases" {
         It "unit: Open-Issue fails with exception" {
     		Mock Invoke-WebRequest { throw "API Error" }
     
