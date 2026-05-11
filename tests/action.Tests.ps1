@@ -25,7 +25,7 @@ Describe "Open-Issue Unit Tests" {
             Mock Invoke-WebRequest {
                 return @{
                     StatusCode = 200
-                    Content    = '{"state":"closed"}'
+                    Content    = '{"state":"open"}'
                 }
             }
 
