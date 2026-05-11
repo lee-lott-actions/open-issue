@@ -31,8 +31,7 @@ function Open-Issue {
     $body = @{ state = 'open' } | ConvertTo-Json
 
     try {
-        Write-Output "Attempting to open issue #$IssueNumber in $Owner/$RepoName"
-        
+        Write-Host "Attempting to open issue #$IssueNumber in $Owner/$RepoName"        
         $response = Invoke-WebRequest -Uri $uri -Headers $headers -Method PATCH -Body $body -SkipHttpErrorCheck
 
         if ($response.StatusCode -eq 200) {
