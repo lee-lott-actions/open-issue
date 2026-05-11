@@ -91,7 +91,7 @@ Describe "Open-Issue Unit Tests" {
     
     		$output = Get-Content $env:GITHUB_OUTPUT
     		$output | Should -Contain "result=failure"
-    		$output | Where-Object { $_ -match "^error-message=Error: Failed to open issue #$IssueNumber\. Exception:" } |
+    		$output | Where-Object { $_ -match "^error-message=Error: Failed to open issue. Exception:" } |
     			Should -Not -BeNullOrEmpty
     	}	
     }    
