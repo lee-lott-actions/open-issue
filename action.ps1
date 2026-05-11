@@ -1,5 +1,3 @@
-#!/usr/bin/env pwsh
-
 function open_issue {
     param (
         [string]$IssueNumber,
@@ -9,21 +7,18 @@ function open_issue {
     )
 
     # Validate required inputs
-    if (
-        [string]::IsNullOrEmpty($IssueNumber) -or
-        [string]::IsNullOrEmpty($RepoName)   -or
-        [string]::IsNullOrEmpty($Owner)      -or
-        [string]::IsNullOrEmpty($Token)
-    ) {
+    if ([string]::IsNullOrEmpty($IssueNumber) -or
+        [string]::IsNullOrEmpty($RepoName) -or
+        [string]::IsNullOrEmpty($Owner) -or
+        [string]::IsNullOrEmpty($Token)) {
         Write-Output "Error: Missing required parameters"
         Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
         Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
         return
     }
-
     # Use MOCK_API if set, otherwise default to GitHub API
     $apiBaseUrl = $env:MOCK_API
-    if(-not $apiBaseUrl) { $apiBaseUrl = "https://api.github.com" }
+    if (-not $apiBaseUrl) { $apiBaseUrl = "https://api.github.com" }
     $uri = "$apiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber"
 
     $headers = @{
@@ -33,7 +28,7 @@ function open_issue {
         "Content-Type" = "application/json"
     }
 
-    $body = @{ state = "open" } | ConvertTo-Json -Compress
+    $body = @{ state = 'open' } | ConvertTo-Json
 
     try {
         Write-Output "Attempting to open issue #$IssueNumber in $Owner/$RepoName"
@@ -43,8 +38,7 @@ function open_issue {
         if ($response.StatusCode -eq 200) {
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=success"
             Write-Host "Opened issue #$IssueNumber in $Owner/$RepoName"
-        }
-        else {
+        } else {
             $errorMsg = "Error: Failed to open issue #$IssueNumber. HTTP Status: $($response.StatusCode)"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
