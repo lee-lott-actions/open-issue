@@ -1,4 +1,4 @@
-function open_issue {
+function Open-Issue {
     param (
         [string]$IssueNumber,
         [string]$Token,
