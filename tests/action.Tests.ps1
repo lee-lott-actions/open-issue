@@ -43,7 +43,7 @@ Describe "Open-Issue unit tests" {
             Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
-            $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 403"
+            $output | Should -Contain "error-message=Error: Failed to open issue #1. HTTP Status: 403"
         }
 
         It "unit: Open-Issue fails with HTTP 404" {
@@ -57,7 +57,7 @@ Describe "Open-Issue unit tests" {
             Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "test-owner" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
-            $output | Should -Contain "error-message=Failed to open issue #1. HTTP Status: 404"
+            $output | Should -Contain "error-message=Error: Failed to open issue #1. HTTP Status: 404"
         }
     }
 
@@ -77,7 +77,7 @@ Describe "Open-Issue unit tests" {
         }
 
         It "unit: Open-Issue fails with empty owner" {
-            pen_issue -IssueNumber "1" -Token "fake-token" -Owner "" -Repo "test-repo"
+            Open-Issue -IssueNumber "1" -Token "fake-token" -Owner "" -Repo "test-repo"
             $output = Get-Content $env:GITHUB_OUTPUT
             $output | Should -Contain "result=failure"
             $output | Should -Contain "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
