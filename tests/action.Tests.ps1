@@ -14,10 +14,8 @@ Describe "Open-Issue Unit Tests" {
     }
 
     AfterEach {
-        if (Test-Path $env:GITHUB_OUTPUT) {
-            Remove-Item $env:GITHUB_OUTPUT -Force
-            Remove-Variable -Name MOCK_API -Scope Global -ErrorAction SilentlyContinue
-        }
+        if (Test-Path $env:GITHUB_OUTPUT) { Remove-Item $env:GITHUB_OUTPUT }
+        Remove-Variable -Name MOCK_API -Scope Global -ErrorAction SilentlyContinue
     }
     
     Context "Success Cases" {
