@@ -1,6 +1,4 @@
-#!/usr/bin/env pwsh
-
-function open_issue {
+function Open-Issue {
     param (
         [string]$IssueNumber,
         [string]$Token,
@@ -9,54 +7,46 @@ function open_issue {
     )
 
     # Validate required inputs
-    if (
-        [string]::IsNullOrEmpty($IssueNumber) -or
-        [string]::IsNullOrEmpty($RepoName)   -or
-        [string]::IsNullOrEmpty($Owner)      -or
-        [string]::IsNullOrEmpty($Token)
-    ) {
+    if ([string]::IsNullOrEmpty($IssueNumber) -or
+        [string]::IsNullOrEmpty($RepoName) -or
+        [string]::IsNullOrEmpty($Owner) -or
+        [string]::IsNullOrEmpty($Token)) {
         Write-Output "Error: Missing required parameters"
         Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Missing required parameters: issue_number, repo_name, owner, and token must be provided."
         Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
         return
     }
-
-    Write-Output "Attempting to open issue #$IssueNumber in $Owner/$RepoName"
-
     # Use MOCK_API if set, otherwise default to GitHub API
-    $ApiBaseUrl = if ($env:MOCK_API) { $env:MOCK_API } else { "https://api.github.com" }
+    $apiBaseUrl = $env:MOCK_API
+    if (-not $apiBaseUrl) { $apiBaseUrl = "https://api.github.com" }
+    $uri = "$apiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber"
+
+    $headers = @{
+        Authorization = "Bearer $Token"
+        Accept = "application/vnd.github+json"
+        "X-GitHub-Api-Version" = "2026-03-10"
+        "Content-Type" = "application/json"
+    }
+
+    $body = @{ state = 'open' } | ConvertTo-Json
 
     try {
-        $headers = @{
-            Authorization          = "Bearer $Token"
-            Accept                 = "application/vnd.github+json"
-            "Content-Type"         = "application/json"
-            "X-GitHub-Api-Version" = "2026-03-10"
-        }
-    
-        $Response = Invoke-WebRequest `
-            -Uri "$ApiBaseUrl/repos/$Owner/$RepoName/issues/$IssueNumber" `
-            -Headers $headers `
-            -Method PATCH `
-            -Body '{"state":"open"}' `
+        Write-Host "Attempting to open issue #$IssueNumber in $Owner/$RepoName"        
+        $response = Invoke-WebRequest -Uri $uri -Headers $headers -Method PATCH -Body $body -SkipHttpErrorCheck
 
-        $StatusCode = $Response.StatusCode
-        
-        Write-Output "API Response Code: $StatusCode"
-
-        if ($StatusCode -eq 200) {
+        if ($response.StatusCode -eq 200) {
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=success"
-            Write-Host "Openend issue #$IssueNumber in $Owner/$RepoName"
-        }
-        else {
+            Write-Host "Opened issue #$IssueNumber in $Owner/$RepoName"
+        } else {
+            $errorMsg = "Error: Failed to open issue #$IssueNumber. HTTP Status: $($response.StatusCode)"
             Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Failed to open issue #$IssueNumber. Status: $StatusCode"
-            Write-Host "Error: Failed to open issue #$IssueNumber. Status: $StatusCode"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
+            Write-Host $errorMsg
         }
+    } catch {
+            $errorMsg = "Error: Failed to open issue #$IssueNumber. Exception: $($_.Exception.Message)"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=$errorMsg"
+            Write-Host $errorMsg
     }
-    catch {
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "result=failure"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "error-message=Open Issue Failed; threw an Exception. Status: $StatusCode"
-            Write-Host "Error: Failed to open issue due to an Exception: $($_.Exception.Message)"
-        }
 }

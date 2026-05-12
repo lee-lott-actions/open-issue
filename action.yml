@@ -34,9 +34,8 @@ runs:
         MOCK_API: ${{ env.MOCK_API }}
       run: |        
         . "${{ github.action_path }}/action.ps1"
-        open_issue `
+        Open-Issue `
           -IssueNumber "${{ inputs.issue-number }}" `
           -Token "${{ inputs.token }}" `
           -Owner "${{ inputs.owner }}" `
-          -RepoName "${{ inputs.repo-name }}"       
-      
+          -RepoName "${{ inputs.repo-name }}"
