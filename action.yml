@@ -27,11 +27,9 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Re-open Issue
+    - name: Open Issue
       id: action
       shell: pwsh
-      env:
-        MOCK_API: ${{ env.MOCK_API }}
       run: |        
         . "${{ github.action_path }}/action.ps1"
         Open-Issue `
