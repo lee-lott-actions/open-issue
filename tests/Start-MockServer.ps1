@@ -9,25 +9,25 @@ $listener.Start()
 Write-Host "Mock server listening on http://127.0.0.1:$Port..." -ForegroundColor Green
 
 try {
-    while ($listener.IsListening) {
-        $context = $listener.GetContext()
-        $request = $context.Request
-        $response = $context.Response
+	while ($listener.IsListening) {
+	        $context = $listener.GetContext()
+	        $request = $context.Request
+	        $response = $context.Response
         
-        $path = $request.Url.LocalPath
-        $method = $request.HttpMethod
+	        $path = $request.Url.LocalPath
+	        $method = $request.HttpMethod
         
-        Write-Host "Mock intercepted: $method $path" -ForegroundColor Cyan
+	        Write-Host "Mock intercepted: $method $path" -ForegroundColor Cyan
         
-        $responseJson = $null
-        $statusCode = 200
+	        $responseJson = $null
+	        $statusCode = 200
 
-        # HealthCheck endpoint: GET /HealthCheck
-        if ($method -eq "GET" -and $path -eq "/HealthCheck") {
-            $statusCode = 200
-            $responseJson = @{ status = "ok" } | ConvertTo-Json
-        }
-        # Mock endpoint: PATCH /repos/:owner/:repo/issues/:issue_number
+	        # HealthCheck endpoint: GET /HealthCheck
+	        if ($method -eq "GET" -and $path -eq "/HealthCheck") {
+	            $statusCode = 200
+	            $responseJson = @{ status = "ok" } | ConvertTo-Json
+	        }
+	        # Mock endpoint: PATCH /repos/:owner/:repo/issues/:issue_number
 		elseif ($method -eq "PATCH" -and $path -match '^/repos/([^/]+)/([^/]+)/issues/(\d+)$') {
 			$owner = $Matches[1]
 		  	$repo = $Matches[2]
@@ -73,7 +73,7 @@ try {
 				$statusCode = 404
 			  	$responseJson = @{ message = "Issue not found" } | ConvertTo-Json
 		  	}
-    	}
+	    	}
 		else {
 			$statusCode = 404
 			$responseJson = @{ message = "Not Found" } | ConvertTo-Json
@@ -82,14 +82,9 @@ try {
 		# Send response
 		$response.StatusCode = $statusCode
 		$response.ContentType = "application/json"
-		if ($statusCode -eq 204) {
-			$response.ContentLength64 = 0
-		}
-		else {
-			$buffer = [System.Text.Encoding]::UTF8.GetBytes($responseJson)
-			$response.ContentLength64 = $buffer.Length
-			$response.OutputStream.Write($buffer, 0, $buffer.Length)
-		}
+		$buffer = [System.Text.Encoding]::UTF8.GetBytes($responseJson)
+		$response.ContentLength64 = $buffer.Length
+		$response.OutputStream.Write($buffer, 0, $buffer.Length)
 		$response.Close()
 	}
 }
